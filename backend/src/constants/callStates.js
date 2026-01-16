@@ -1,0 +1,7 @@
+module.exports = {
+  DIALING: "DIALING",
+  QUEUED: "QUEUED",
+  CONNECTED: "CONNECTED",
+  COMPLETED: "COMPLETED",
+  DROPPED: "DROPPED"
+};
