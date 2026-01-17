@@ -1,27 +1,25 @@
-const { TICK_INTERVAL_MS } = require("../config/config");
-
 let currentTick = 0;
 let intervalRef = null;
 
+let callEngine = null;
+let callSpawner = null;
+
+function initTickEngine({ callEngineInstance, callSpawnerInstance }) {
+  callEngine = callEngineInstance;
+  callSpawner = callSpawnerInstance;
+}
+
 function tick() {
   currentTick++;
-  console.log("TICK:", currentTick);
+//   console.log("TICK:", currentTick);
 
-  // Phase 2+:
-  // - spawn calls
-  // - process dialing
-  // - process completions
+  callSpawner.processTick(currentTick);
+  callEngine.processTick(currentTick);
 }
 
 function startClock() {
   if (intervalRef) return;
-
-  intervalRef = setInterval(tick, TICK_INTERVAL_MS);
-}
-
-function stopClock() {
-  clearInterval(intervalRef);
-  intervalRef = null;
+  intervalRef = setInterval(tick, 1000);
 }
 
 function getCurrentTick() {
@@ -29,7 +27,7 @@ function getCurrentTick() {
 }
 
 module.exports = {
+  initTickEngine,
   startClock,
-  stopClock,
   getCurrentTick
 };
