@@ -1,3 +1,4 @@
+require("dotenv").config();
 const http = require("http");
 const app = require("./app");
 
@@ -13,29 +14,25 @@ const { AGENT_COUNT } = require("./config/config");
 
 const PORT = process.env.PORT || 4000;
 
-// HTTP server
 const server = http.createServer(app);
 
 const agentManager = new AgentManager(AGENT_COUNT);
 const callEngine = new CallEngine(agentManager);
 const callSpawner = new CallSpawner(callEngine);
 
-// Initialize tick
 initTickEngine({
   callEngineInstance: callEngine,
-  callSpawnerInstance: callSpawner
+  callSpawnerInstance: callSpawner,
 });
 
-// WebSocket state collector
 const stateCollector = new StateCollector(
   callEngine,
   agentManager,
-  getCurrentTick
+  getCurrentTick,
 );
 
 new WebSocketBroadcaster(server, stateCollector);
 
-// Start system
 startClock();
 
 server.listen(PORT, () => {

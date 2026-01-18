@@ -5,7 +5,8 @@ function App() {
   const [connected, setConnected] = useState(false);
 
   useEffect(() => {
-    const ws = new WebSocket("ws://localhost:4000");
+    const wsUrl = import.meta.env.VITE_WS_URL || "ws://localhost:4000";
+    const ws = new WebSocket(wsUrl);
 
     ws.onopen = () => setConnected(true);
     ws.onclose = () => setConnected(false);
@@ -141,7 +142,7 @@ function App() {
                       </p>
                     </div>
 
-                    <div className="flex items-center gap-2 ml-2 sm:ml-3 flex-shrink-0">
+                    <div className="flex items-center gap-2 ml-2 sm:ml-3 shrink-0">
                       <div
                         className={`w-2.5 h-2.5 rounded-full ${
                           agent.state === "AVAILABLE"
@@ -222,7 +223,7 @@ function App() {
                           Agent: {call.agentId}
                         </p>
                       </div>
-                      <div className="w-2.5 h-2.5 rounded-full bg-gray-700 ml-2 flex-shrink-0"></div>
+                      <div className="w-2.5 h-2.5 rounded-full bg-gray-700 ml-2 shrink-0"></div>
                     </div>
                   ))
               )}
