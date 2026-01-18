@@ -1,28 +1,41 @@
 const http = require("http");
-const WebSocket = require("ws");
 const app = require("./app");
-const { startClock } = require("./tick/clock");
+
+const { startClock, initTickEngine, getCurrentTick } = require("./tick/clock");
+
+const AgentManager = require("./agents/AgentManager");
+const CallEngine = require("./engine/CallEngine");
+const CallSpawner = require("./spawner/CallSpawner");
+const StateCollector = require("./websocket/stateCollector");
+const WebSocketBroadcaster = require("./websocket/wsServer");
+
+const { AGENT_COUNT } = require("./config/config");
 
 const PORT = process.env.PORT || 4000;
 
 // HTTP server
 const server = http.createServer(app);
 
-// WebSocket server
-const wss = new WebSocket.Server({ server });
+const agentManager = new AgentManager(AGENT_COUNT);
+const callEngine = new CallEngine(agentManager);
+const callSpawner = new CallSpawner(callEngine);
 
-wss.on("connection", (ws) => {
-  console.log("WebSocket client connected");
-
-  ws.send(
-    JSON.stringify({
-      type: "WELCOME",
-      message: "Connected to Call Routing System"
-    })
-  );
+// Initialize tick
+initTickEngine({
+  callEngineInstance: callEngine,
+  callSpawnerInstance: callSpawner
 });
 
-// Start tick clock
+// WebSocket state collector
+const stateCollector = new StateCollector(
+  callEngine,
+  agentManager,
+  getCurrentTick
+);
+
+new WebSocketBroadcaster(server, stateCollector);
+
+// Start system
 startClock();
 
 server.listen(PORT, () => {
